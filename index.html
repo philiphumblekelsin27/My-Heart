@@ -1,149 +1,194 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>One Year, One Universe | Love Protocol</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,700;1,400&family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --stark-blue: #00e5ff;
-            --love-pink: #ff2d55;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-        body {
-            background-color: #02060a;
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-        }
+        :root { --stark-blue: #00e5ff; --love-pink: #ff2d55; }
+        body { background-color: #02060a; color: #ffffff; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; height: 100vh; }
         .serif { font-family: 'Cormorant Garamond', serif; }
-        .mono { font-family: 'JetBrains+Mono', monospace; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Glassmorphism */
-        .glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.5);
-        }
+        /* Cinematic Effects */
+        .bg-layer { position: fixed; inset: 0; background-size: cover; background-position: center; transition: opacity 2s ease-in-out, transform 10s ease-out; opacity: 0; z-index: -1; }
+        .bg-layer.active { opacity: 0.3; transform: scale(1.05); }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Loaders */
+        #global-loader { background: #02060a; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #post-login-loader { background: rgba(2, 6, 10, 0.95); z-index: 150; display: none; }
+        
+        .loader-bar { width: 200px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; position: relative; }
+        .loader-progress { width: 0%; height: 100%; background: var(--stark-blue); transition: width 0.3s ease; box-shadow: 0 0 10px var(--stark-blue); }
 
-        /* Animations */
-        @keyframes reverse-spin {
-          from { transform: rotate(360deg); }
-          to { transform: rotate(0deg); }
-        }
-        .animate-reverse-spin { animation: reverse-spin 15s linear infinite; }
-        .animate-spin-slow { animation: spin 25s linear infinite; }
+        /* Scanner Animations */
+        @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(300%); } }
+        .scan-laser { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--love-pink); box-shadow: 0 0 15px var(--love-pink); animation: scan 2s ease-in-out infinite; display: none; }
+        .scanning .scan-laser { display: block; }
+        .progress-ring__circle { transition: stroke-dashoffset 0.1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
 
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
+        /* Utilities */
+        .hidden { display: none !important; }
+        .scroll-container::-webkit-scrollbar { width: 4px; }
+        .scroll-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.8s ease-out forwards; }
+        .heart-pulse { animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1); }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }
+        
+        .typewriter-cursor::after { content: '|'; animation: blink 1s infinite; color: var(--love-pink); }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        @keyframes pulse-heart {
-            0%, 100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px var(--love-pink)); }
-            50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 25px var(--love-pink)); }
-        }
-        .heart-pulse { animation: pulse-heart 2.5s ease-in-out infinite; }
-
-        /* Scan Line Effect */
-        @keyframes scan {
-            0% { transform: translateY(-100vh); }
-            100% { transform: translateY(100vh); }
-        }
-        .scan-line {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--stark-blue), transparent);
-            opacity: 0.15; z-index: 999; pointer-events: none;
-            animation: scan 10s linear infinite;
-        }
-
-        /* Network & Ingredient Drift - Slowed down and refined */
-        @keyframes drift {
-            0% { background-position: 0 0; }
-            100% { background-position: 100px 100px; }
-        }
-        .visual-noise {
-            background-image: radial-gradient(rgba(0, 229, 255, 0.08) 1px, transparent 1px), 
-                              radial-gradient(rgba(255, 45, 85, 0.05) 1px, transparent 1px);
-            background-size: 60px 60px, 100px 100px;
-            background-position: 0 0, 50px 50px;
-            animation: drift 60s linear infinite;
-            pointer-events: none;
-        }
-
-        /* Terminal Cursor Blink - Refined to block style */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        .cursor-blink::after {
-            content: '';
-            display: inline-block;
-            width: 10px;
-            height: 1.2em;
-            background-color: currentColor;
-            margin-left: 4px;
-            vertical-align: middle;
-            animation: blink 1s step-end infinite;
-        }
-
-        /* Data Bit Floating */
-        @keyframes data-float {
-            0% { transform: translateY(0) rotate(0); opacity: 0; }
-            20% { opacity: 0.4; }
-            80% { opacity: 0.4; }
-            100% { transform: translateY(-150px) rotate(360deg); opacity: 0; }
-        }
-        .data-bit {
-            position: absolute;
-            font-family: 'JetBrains+Mono', monospace;
-            font-size: 10px;
-            pointer-events: none;
-            animation: data-float 7s linear infinite;
-        }
-
-        /* Anniversary Pulsing Glow */
-        @keyframes anniversary-pulse {
-            0%, 100% { box-shadow: 0 0 15px rgba(255, 45, 85, 0.1); border-color: rgba(255, 45, 85, 0.2); }
-            50% { box-shadow: 0 0 40px rgba(255, 45, 85, 0.4); border-color: rgba(255, 45, 85, 0.6); }
-        }
-        .anniversary-glow { animation: anniversary-pulse 4s infinite ease-in-out; }
-
-        /* Portal Expand Transition */
-        @keyframes portal-out {
-            0% { transform: scale(1); opacity: 0; }
-            100% { transform: scale(30); opacity: 1; }
-        }
-        .animate-portal-out {
-            animation: portal-out 1.2s cubic-bezier(0.7, 0, 0.3, 1) forwards;
-        }
-
-        ::-webkit-scrollbar { width: 0px; }
+        /* Glitch Effect */
+        .glitch { position: relative; }
+        .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; }
+        .glitch::before { left: 2px; text-shadow: -2px 0 #ff00c1; clip: rect(44px, 450px, 56px, 0); animation: glitch-anim 5s infinite linear alternate-reverse; }
+        .glitch::after { left: -2px; text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1; animation: glitch-anim2 1s infinite linear alternate-reverse; }
+        @keyframes glitch-anim { 0% { clip: rect(31px, 9999px, 94px, 0); } 20% { clip: rect(62px, 9999px, 42px, 0); } 100% { clip: rect(81px, 9999px, 12px, 0); } }
+        @keyframes glitch-anim2 { 0% { clip: rect(65px, 9999px, 100px, 0); } 50% { clip: rect(10px, 9999px, 30px, 0); } 100% { clip: rect(80px, 9999px, 90px, 0); } }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
     "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
   }
 }
 </script>
 </head>
 <body>
-    <div class="scan-line"></div>
-    <div id="root"></div>
+    <!-- Global Initial Loader -->
+    <div id="global-loader" class="fixed inset-0">
+        <div class="space-y-6 text-center">
+            <div class="mono text-[10px] tracking-[0.5em] text-[#00e5ff] uppercase font-black animate-pulse">Initializing Archive</div>
+            <div class="loader-bar mx-auto">
+                <div id="global-progress" class="loader-progress"></div>
+            </div>
+            <div id="loader-status" class="mono text-[8px] text-white/30 uppercase">Pre-loading Neural Assets...</div>
+        </div>
+    </div>
+
+    <!-- Background System -->
+    <div id="bg-layers"></div>
+    <div class="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-[#02060a] via-transparent to-[#02060a]"></div>
+
+    <!-- 1. New Year Greeting Screen -->
+    <div id="greeting-screen" class="fixed inset-0 z-[110] flex items-center justify-center bg-[#02060a] text-center p-8 hidden">
+        <div class="max-w-4xl space-y-12">
+            <h2 class="serif text-6xl md:text-8xl italic font-bold text-white tracking-tighter animate-fade-in glitch" data-text="Happy New Year,">Happy New Year,<br><span class="text-[#ff2d55]">My Love</span></h2>
+            <div class="glass p-10 md:p-16 rounded-[40px] text-left">
+                <p id="greeting-text" class="serif text-2xl md:text-4xl italic text-white/90 leading-relaxed font-light typewriter-cursor"></p>
+            </div>
+            <button id="proceed-btn" class="hidden animate-fade-in group flex flex-col items-center gap-4 mx-auto">
+                <div class="w-20 h-20 rounded-full border-2 border-[#ff2d55] flex items-center justify-center bg-[#ff2d55]/10 heart-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#ff2d55" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                </div>
+                <span class="mono text-[10px] tracking-widest text-white/40 uppercase">Initialize Handshake</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. Login Gate -->
+    <div id="login-gate" class="fixed inset-0 z-[100] flex items-center justify-center glass hidden">
+        <div class="max-w-md w-full p-10 text-center space-y-12 animate-fade-in">
+            <div class="relative inline-block">
+                <div class="w-32 h-32 rounded-full border-4 border-[#00e5ff]/20 flex items-center justify-center bg-black/40">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+            </div>
+            <form id="login-form" class="space-y-8">
+                <input type="password" id="passphrase" placeholder="MMDDYYYY" class="w-full bg-transparent border-b-2 border-white/10 text-center text-4xl py-4 mono focus:outline-none focus:border-[#00e5ff] transition-all tracking-[0.5em] text-white">
+                <div id="login-msg" class="h-4 mono text-[10px] text-[#ff2d55] tracking-widest uppercase"></div>
+                <button type="submit" class="w-full py-5 border border-[#00e5ff]/40 text-[#00e5ff] mono text-xs font-black tracking-[0.4em] uppercase hover:bg-[#00e5ff]/10">Access Vault</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Post-Login Decrypting Loader -->
+    <div id="post-login-loader" class="fixed inset-0 flex flex-col items-center justify-center">
+        <div class="space-y-8 text-center animate-fade-in">
+            <div class="w-24 h-24 rounded-full border-4 border-[#ff2d55]/20 flex items-center justify-center mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2" class="heart-pulse"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </div>
+            <div class="mono text-[10px] tracking-[0.6em] text-[#00e5ff] font-black uppercase">Decrypting Neural Link...</div>
+            <div class="loader-bar mx-auto">
+                <div id="decrypt-progress" class="loader-progress" style="background: var(--love-pink); box-shadow: 0 0 10px var(--love-pink);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Main Sanctuary Application -->
+    <div id="sanctuary" class="hidden h-screen flex flex-col relative z-10">
+        <header class="p-8 flex justify-between items-center fixed top-0 w-full z-50 pointer-events-none">
+            <div class="glass px-6 py-4 rounded-2xl pointer-events-auto flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-[#00e5ff] animate-pulse"></div>
+                <span class="mono text-[10px] tracking-widest font-black uppercase text-[#00e5ff]">CORE::ACTIVE</span>
+            </div>
+            <div class="hidden md:flex gap-6 pointer-events-none opacity-20">
+                <div class="mono text-[10px] text-white/40">CPU_TEMP: 34C</div>
+                <div class="mono text-[10px] text-[#00e5ff]">LATENCY: 12MS</div>
+                <div class="mono text-[10px] text-[#ff2d55]">HEART: 100%</div>
+            </div>
+        </header>
+
+        <main id="content-area" class="flex-grow overflow-y-auto scroll-container pt-32 pb-48 px-6 md:px-20"></main>
+
+        <nav class="fixed bottom-0 left-0 w-full p-8 z-50">
+            <div class="max-w-5xl mx-auto glass rounded-[35px] p-2 flex items-center justify-between gap-1 shadow-2xl">
+                <button data-tab="origin" class="nav-btn active flex-1 py-4 flex flex-col items-center gap-2 rounded-2xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    <span class="mono text-[8px] tracking-widest uppercase opacity-40">Origin</span>
+                </button>
+                <button data-tab="memories" class="nav-btn flex-1 py-4 flex flex-col items-center gap-2 rounded-2xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                    <span class="mono text-[8px] tracking-widest uppercase opacity-40">Logs</span>
+                </button>
+                <button data-tab="kitchen" class="nav-btn flex-1 py-4 flex flex-col items-center gap-2 rounded-2xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/></svg>
+                    <span class="mono text-[8px] tracking-widest uppercase opacity-40">Kitchen</span>
+                </button>
+                <button data-tab="echoes" class="nav-btn flex-1 py-4 flex flex-col items-center gap-2 rounded-2xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="mono text-[8px] tracking-widest uppercase opacity-40">Echoes</span>
+                </button>
+                <button data-tab="passion" class="nav-btn flex-1 py-4 flex flex-col items-center gap-2 rounded-2xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                    <span class="mono text-[8px] tracking-widest uppercase opacity-40 text-[#ff2d55]">Passion</span>
+                </button>
+                <button data-tab="vault" class="nav-btn flex-1 py-4 flex flex-col items-center gap-2 rounded-2xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span class="mono text-[8px] tracking-widest uppercase opacity-40">Vault</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Templates -->
+    <template id="tpl-passion-locked">
+        <div class="max-w-xl mx-auto text-center space-y-16 py-20 animate-fade-in">
+            <h2 class="serif text-6xl italic font-bold">Passion Protocol</h2>
+            <div class="relative flex justify-center">
+                <div id="scanner" class="relative w-48 h-48 md:w-64 md:h-64 rounded-full border-2 border-white/10 flex items-center justify-center cursor-pointer overflow-hidden bg-white/5 shadow-2xl transition-all">
+                    <div class="scan-laser"></div>
+                    <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none">
+                        <circle class="progress-ring__circle" stroke="#ff2d55" stroke-width="4" fill="transparent" r="90" cx="128" cy="128" stroke-dasharray="565" stroke-dashoffset="565"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-white/20"><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5-2.2 5-5 5-5-2.2-5-5Z"/><path d="M19 12c0-2.8 2.2-5 5-5"/><path d="M2 12C2 6.5 6.5 2 12 2s10 4.5 10 10-4.5 10-10 10"/><path d="M12 12h.01"/></svg>
+                </div>
+            </div>
+            <div id="scanner-feedback" class="mono text-[10px] text-white/30 tracking-[0.4em] uppercase">Hold Finger to Authenticate</div>
+            <div class="inline-block px-8 py-3 rounded-full border border-white/10 glass"><span id="countdown" class="mono text-xs text-[#ff2d55] font-black tracking-widest uppercase">Temporal Lock Active</span></div>
+        </div>
+    </template>
+
+    <script type="module" src="index.js"></script>
 </body>
 </html>

@@ -69,13 +69,13 @@ export const VALENTINES_DATA = {
     {
       type: 'image',
       title: "The Vision of You",
-      description: "[Placeholder: Upload the photo where you look most radiant]. This is the image I keep pinned to my primary heart-drive. It's the one that reminds me why every mile between us is worth crossing.",
+      description: "The photo that anchors my daily routine. A masterpiece of light and soul.",
       url: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=1200"
     },
     {
       type: 'video',
       title: "The Synchronicity Loop",
-      description: "[Placeholder: Upload a video of us laughing or cooking together]. Watching this video is my favorite recursive function. I can loop it forever and never get tired of the results.",
+      description: "Moments of shared laughter, captured and looped in the halls of my memory.",
       url: "https://player.vimeo.com/external/494101150.sd.mp4?s=694e9f7831f45c9118e7e1f7a6344558e0a36465&profile_id=165&oauth2_token_id=57447761"
     },
     {
@@ -83,12 +83,6 @@ export const VALENTINES_DATA = {
       title: "The Unbreakable Vow",
       description: "A private log entry written in the language of the soul.",
       content: "Chinecherem, my promise to you is absolute. Like an immutable variable, my devotion won't change regardless of external conditions. I vow to be the security for your dreams, the warmth in your kitchen, and the love that defies the distance between us. Forever synced."
-    },
-    {
-      type: 'image',
-      title: "Gourmet Hearts",
-      description: "[Placeholder: A photo of your favorite dish or a gift shared]. The taste of your love is better than any Michelin-starred meal. It's home.",
-      url: "https://images.unsplash.com/photo-1516589174184-c68526673fd?auto=format&fit=crop&q=80&w=1200"
     }
   ]
 };
@@ -117,7 +111,7 @@ export const EMOTION_THEMES: Record<Emotion, string> = {
   longing: 'rgba(255, 45, 85, 0.05)',
   peace: 'rgba(0, 255, 127, 0.05)',
   excitement: 'rgba(255, 140, 0, 0.05)',
-  passion: 'rgba(180, 0, 0, 0.25)'
+  passion: 'rgba(255, 45, 85, 0.2)'
 };
 
 export const PLAYLIST = [

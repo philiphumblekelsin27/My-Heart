@@ -8,7 +8,7 @@ import ChatArchiveDisplay from './ChatArchiveDisplay';
 import FutureVault from './FutureVault';
 import MemoryPrompter from './MemoryPrompter';
 import TypewriterText from './TypewriterText';
-import { Video, Heart, Terminal, Globe, MessageCircle, Utensils, ShieldCheck, ChevronDown, Activity, Layers, Search, Command, Cpu, Hash, X, Play, Flame, Image as ImageIcon, Type, Sparkles, Fingerprint, ShieldAlert, Wifi } from 'lucide-react';
+import { Video, Heart, Terminal, Globe, MessageCircle, Utensils, ShieldCheck, ChevronDown, Activity, Layers, Search, Command, Cpu, Hash, X, Play, Flame, Image as ImageIcon, Type, Sparkles, Fingerprint, ShieldAlert, Wifi, Lock } from 'lucide-react';
 
 interface SanctuaryProps {
   currentEmotion: Emotion;
@@ -32,7 +32,10 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
 
   // Target Date: February 14, 2026
   const targetValentineDate = useMemo(() => new Date('2026-02-14T00:00:00'), []);
-  const isValentineReady = useMemo(() => new Date() >= targetValentineDate, [targetValentineDate]);
+  const isValentineReady = useMemo(() => {
+    // For development, you can change this, but strictly set to target for production.
+    return new Date() >= targetValentineDate;
+  }, [targetValentineDate]);
 
   const tabs: { id: TabId; icon: any; label: string; bgIndex: number; index: number }[] = useMemo(() => [
     { id: 'origin', icon: Heart, label: 'ORIGIN', bgIndex: 0, index: 0 },
@@ -49,7 +52,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
     setDynamicBgIndex(prev => (prev + 1) % BACKGROUND_IMAGES.length);
   }, []);
 
-  // Global Background Cycling on Tap
   useEffect(() => {
     const handleGlobalTap = () => cycleBackground();
     window.addEventListener('click', handleGlobalTap, true); 
@@ -77,7 +79,7 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
     if (isTransitioning || tabId === activeTab) return;
     setIsTransitioning(true);
     setActiveTab(tabId);
-    setAccessDenied(false); // Reset denied state on nav
+    setAccessDenied(false); 
     
     if (tabId === 'valentines') {
       onEmotionChange('passion');
@@ -94,10 +96,8 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
   const startScan = () => {
     if (isScanning || isValentinesUnlocked) return;
 
-    // Check if the date has arrived
     if (!isValentineReady) {
       setAccessDenied(true);
-      // Brief feedback before returning to idle
       setTimeout(() => setAccessDenied(false), 3000);
       return;
     }
@@ -115,6 +115,13 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
         }, 300);
       }
     }, 40);
+  };
+
+  const stopScan = () => {
+    if (isScanning && !isValentinesUnlocked) {
+      setIsScanning(false);
+      setScanProgress(0);
+    }
   };
 
   return (
@@ -225,8 +232,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
                   <MemoryViewer key={m.id} memory={m} index={i} />
                 ))}
              </div>
-
-             <MemoryPrompter />
           </div>
         </section>
 
@@ -254,11 +259,6 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
                         <div className="mono text-[10px] text-[#ff2d55] font-black tracking-widest uppercase mb-2">{vid.month}</div>
                         <h4 className="serif text-3xl italic font-bold text-white">{vid.title}</h4>
                       </div>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                        <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center">
-                           <Play size={32} fill="white" className="ml-2" />
-                        </div>
-                      </div>
                    </div>
                 ))}
              </div>
@@ -278,6 +278,8 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
                    <ChatArchiveDisplay key={month} month={month} messages={messages} />
                 ))}
              </div>
+             
+             <MemoryPrompter />
           </div>
         </section>
 
@@ -285,20 +287,29 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
         <section className="min-w-full h-full overflow-y-auto px-6 md:px-20 py-32 md:py-48" data-bg-index="5">
           <div className="max-w-7xl mx-auto">
              {!isValentinesUnlocked ? (
-               <div className="max-w-4xl mx-auto text-center space-y-16 py-20">
+               <div className="max-w-4xl mx-auto text-center space-y-16 py-20 flex flex-col items-center">
                   <div className="space-y-8">
                      <h2 className="serif text-6xl md:text-9xl italic font-bold text-white tracking-tighter">Passion Protocol</h2>
                      <div className="mono text-[10px] md:text-[12px] tracking-[1em] text-[#ff2d55] font-black uppercase opacity-60">High_Security_Intimacy_Vault</div>
                   </div>
 
-                  <div className="relative group inline-block">
-                     <div className={`absolute -inset-10 rounded-full border border-dashed transition-all duration-1000 ${isScanning ? 'border-[#ff2d55] animate-spin-slow opacity-100' : 'border-white/10 opacity-40 group-hover:opacity-80'}`}></div>
+                  {/* Fingerprint Scanner Component */}
+                  <div className="relative group p-10">
+                     <div className={`absolute inset-0 rounded-full border-2 border-dashed transition-all duration-1000 ${isScanning ? 'border-[#ff2d55] animate-spin-slow scale-110' : 'border-white/10 opacity-30 group-hover:opacity-60'}`}></div>
                      
-                     <button 
+                     <div 
                         onMouseDown={startScan}
+                        onMouseUp={stopScan}
+                        onMouseLeave={stopScan}
                         onTouchStart={startScan}
-                        className={`relative w-40 h-40 md:w-64 md:h-64 rounded-full border-4 flex flex-col items-center justify-center transition-all duration-700 overflow-hidden ${accessDenied ? 'border-red-600 bg-red-600/10' : isScanning ? 'border-[#ff2d55] bg-[#ff2d55]/10' : 'border-white/20 bg-white/5 hover:border-[#ff2d55]/50 shadow-2xl'}`}
+                        onTouchEnd={stopScan}
+                        className={`relative w-48 h-48 md:w-64 md:h-64 rounded-full border-2 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden cursor-pointer active:scale-95 select-none ${accessDenied ? 'border-red-600 bg-red-600/10' : isScanning ? 'border-[#ff2d55] bg-[#ff2d55]/5' : 'border-white/20 bg-white/5 hover:border-[#ff2d55]/50'}`}
                      >
+                        {/* Scanner Laser Line */}
+                        {isScanning && (
+                          <div className="absolute top-0 left-0 w-full h-1 bg-[#ff2d55] shadow-[0_0_15px_#ff2d55] animate-scan z-20"></div>
+                        )}
+
                         <div className="relative z-10 flex flex-col items-center gap-4">
                            {accessDenied ? (
                              <>
@@ -307,31 +318,35 @@ const Sanctuary: React.FC<SanctuaryProps> = ({ currentEmotion, onEmotionChange }
                              </>
                            ) : (
                              <>
-                               <Fingerprint size={64} className={`transition-colors duration-500 ${isScanning ? 'text-[#ff2d55]' : 'text-white/40'}`} />
-                               <span className="mono text-[10px] font-black text-white/40 uppercase tracking-widest">Verify_Heartbeat</span>
+                               <Fingerprint size={64} className={`transition-colors duration-500 ${isScanning ? 'text-[#ff2d55]' : 'text-white/20'}`} />
+                               <span className="mono text-[10px] font-black text-white/40 uppercase tracking-widest">Hold to Verify</span>
                              </>
                            )}
                         </div>
 
-                        {isScanning && (
-                           <div 
-                              className="absolute bottom-0 left-0 w-full bg-[#ff2d55]/30 transition-all duration-100" 
-                              style={{ height: `${scanProgress}%` }}
-                           ></div>
-                        )}
-                     </button>
+                        {/* Progress Fill */}
+                        <div 
+                           className="absolute bottom-0 left-0 w-full bg-[#ff2d55]/20 transition-all duration-100 ease-linear" 
+                           style={{ height: `${scanProgress}%` }}
+                        ></div>
+                     </div>
                   </div>
 
-                  <div className="space-y-6">
-                    <p className="serif text-white/60 italic text-xl md:text-3xl max-w-2xl mx-auto">
-                      "To access the core of our shared flame, the system requires a temporal and emotional handshake."
+                  <div className="space-y-6 max-w-xl">
+                    <div className="flex items-center justify-center gap-3">
+                       <Lock size={14} className="text-white/40" />
+                       <span className="mono text-[10px] text-white/40 font-black tracking-widest uppercase">Encryption Status: Temporal_Restricted</span>
+                    </div>
+                    <p className="serif text-white/60 italic text-xl md:text-2xl">
+                      "This archive is sealed until the synchronicity of 2026. Only a heartbeat on the appointed day can unlock these memories."
                     </p>
-                    <div className="mono text-[10px] text-white/20 font-black tracking-widest uppercase">
-                       Required Date: Feb 14, 2026
+                    <div className="inline-block px-6 py-2 rounded-full bg-white/5 border border-white/10 mono text-[10px] text-[#ff2d55] font-black tracking-widest uppercase">
+                       Unlocks: Feb 14, 2026
                     </div>
                   </div>
                </div>
              ) : (
+               /* The Unlocked Passion Content */
                <div className="space-y-32 md:space-y-64 animate-fade-in">
                   <div className="text-center space-y-10">
                      <h2 className="serif text-6xl md:text-[12rem] italic font-bold text-white tracking-tighter leading-none">{VALENTINES_DATA.title}</h2>
