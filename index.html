@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Year, One Universe | Love Protocol</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,700;1,400&family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --stark-blue: #00e5ff;
+            --love-pink: #ff2d55;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            background-color: #02060a;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .serif { font-family: 'Cormorant Garamond', serif; }
+        .mono { font-family: 'JetBrains+Mono', monospace; }
+
+        /* Glassmorphism */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* Animations */
+        @keyframes reverse-spin {
+          from { transform: rotate(360deg); }
+          to { transform: rotate(0deg); }
+        }
+        .animate-reverse-spin { animation: reverse-spin 15s linear infinite; }
+        .animate-spin-slow { animation: spin 25s linear infinite; }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-heart {
+            0%, 100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px var(--love-pink)); }
+            50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 25px var(--love-pink)); }
+        }
+        .heart-pulse { animation: pulse-heart 2.5s ease-in-out infinite; }
+
+        /* Scan Line Effect */
+        @keyframes scan {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+        .scan-line {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--stark-blue), transparent);
+            opacity: 0.15; z-index: 999; pointer-events: none;
+            animation: scan 10s linear infinite;
+        }
+
+        /* Network & Ingredient Drift - Slowed down and refined */
+        @keyframes drift {
+            0% { background-position: 0 0; }
+            100% { background-position: 100px 100px; }
+        }
+        .visual-noise {
+            background-image: radial-gradient(rgba(0, 229, 255, 0.08) 1px, transparent 1px), 
+                              radial-gradient(rgba(255, 45, 85, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px, 100px 100px;
+            background-position: 0 0, 50px 50px;
+            animation: drift 60s linear infinite;
+            pointer-events: none;
+        }
+
+        /* Terminal Cursor Blink - Refined to block style */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cursor-blink::after {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background-color: currentColor;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+        }
+
+        /* Data Bit Floating */
+        @keyframes data-float {
+            0% { transform: translateY(0) rotate(0); opacity: 0; }
+            20% { opacity: 0.4; }
+            80% { opacity: 0.4; }
+            100% { transform: translateY(-150px) rotate(360deg); opacity: 0; }
+        }
+        .data-bit {
+            position: absolute;
+            font-family: 'JetBrains+Mono', monospace;
+            font-size: 10px;
+            pointer-events: none;
+            animation: data-float 7s linear infinite;
+        }
+
+        /* Anniversary Pulsing Glow */
+        @keyframes anniversary-pulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 45, 85, 0.1); border-color: rgba(255, 45, 85, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(255, 45, 85, 0.4); border-color: rgba(255, 45, 85, 0.6); }
+        }
+        .anniversary-glow { animation: anniversary-pulse 4s infinite ease-in-out; }
+
+        /* Portal Expand Transition */
+        @keyframes portal-out {
+            0% { transform: scale(1); opacity: 0; }
+            100% { transform: scale(30); opacity: 1; }
+        }
+        .animate-portal-out {
+            animation: portal-out 1.2s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+        }
+
+        ::-webkit-scrollbar { width: 0px; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+  }
+}
+</script>
+</head>
+<body>
+    <div class="scan-line"></div>
+    <div id="root"></div>
+</body>
+</html>

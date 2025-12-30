@@ -1,0 +1,7 @@
+{
+  "name": "One Year, One Universe",
+  "description": "A private, cinematic, story-driven love archive created by Lucian to commemorate a year of courtship with Chinecherem through memories, chats, and future promises.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
